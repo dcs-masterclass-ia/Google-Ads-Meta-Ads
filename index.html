@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterclass Ultime — Meta & Google Ads</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0f172a; 
+            --ink-soft: #334155;
+            --surface: #f8fafc; 
+            --blue-primary: #3b82f6; /* Meta Blue */
+            --magenta: #d946ef; /* Accent / Creative */
+            --radius-xl: 28px;
+            --slide-transition: 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            overflow: hidden; background-color: var(--surface); color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- AMBIANCE PERFORMANCE (Blue & Magenta) --- */
+        .blob {
+            position: fixed; filter: blur(120px); z-index: -1; opacity: 0.5;
+            animation: blobFloat 20s infinite ease-in-out; pointer-events: none;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 600px; height: 600px; background: radial-gradient(circle, #bfdbfe 0%, #eff6ff 100%); animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 700px; height: 700px; background: radial-gradient(circle, #fbcfe8 0%, #fdf2f8 100%); animation-delay: 5s; }
+        .blob-3 { top: 30%; left: 40%; width: 500px; height: 500px; background: radial-gradient(circle, #c7d2fe 0%, #ffffff 100%); animation-delay: 2s; opacity: 0.6; }
+        
+        @keyframes blobFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, 50px) scale(1.05); }
+            66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.5; background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+        }
+
+        /* --- SLIDE SYSTEM --- */
+        .slide {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; opacity: 0; pointer-events: none;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; z-index: 1;
+            transition: opacity var(--slide-transition), transform var(--slide-transition), filter var(--slide-transition);
+            transform: scale(0.95) translateY(20px); filter: blur(8px);
+        }
+        .slide.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); filter: blur(0px); z-index: 2; }
+
+        .anim { opacity: 0; transform: translateY(20px); transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+        .active .anim { opacity: 1; transform: translateY(0); }
+        .d1 { transition-delay: 100ms; } .d2 { transition-delay: 200ms; } .d3 { transition-delay: 300ms; }
+        .d4 { transition-delay: 400ms; } .d5 { transition-delay: 500ms; } .d6 { transition-delay: 600ms; }
+
+        /* --- CARDS (ZERO BORDER) --- */
+        .glass {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: none; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), 0 2px 10px rgba(0, 0, 0, 0.01); 
+            border-radius: var(--radius-xl);
+        }
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: none; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.02); 
+            border-radius: var(--radius-xl);
+        }
+        
+        .nav-btn { padding: 14px; border-radius: 50%; border: none; cursor: pointer; transition: all 0.2s ease; background: var(--ink); color: white; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); }
+        .nav-btn:active { transform: scale(0.92); }
+        .nav-prev { background: white; color: var(--ink); }
+        .progress-track { height: 4px; background: rgba(59, 130, 246, 0.1); position: fixed; top: 0; left: 0; z-index: 100; width: 100%; }
+        .progress-fill { height: 100%; background: var(--blue-primary); transition: width 0.3s ease; }
+        .slide-counter { position: fixed; bottom: 2rem; left: 2rem; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink-soft); font-weight: bold; z-index: 50; background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 20px;}
+        
+        /* CORRECTION DES BADGES */
+        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* Specific Layouts */
+        .mockup-phone { border: 8px solid #0f172a; border-radius: 36px; overflow: hidden; background: white; width: 280px; height: 500px; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .mockup-search { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white; width: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .tree-line { width: 2px; height: 20px; background: #cbd5e1; margin: 0 auto; }
+        .tree-branch { width: 50%; border-top: 2px solid #cbd5e1; height: 20px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div><div class="bg-grid"></div>
+    <div class="progress-track"><div id="progress" class="progress-fill" style="width:0%"></div></div>
+
+    <nav class="fixed bottom-6 right-6 z-50 flex items-center gap-3">
+        <button onclick="prevSlide()" class="nav-btn nav-prev"><i data-lucide="arrow-left" width="20" height="20"></i></button>
+        <button onclick="nextSlide()" class="nav-btn"><i data-lucide="arrow-right" width="20" height="20"></i></button>
+    </nav>
+    <div class="slide-counter" id="slideCounter">01 / 40</div>
+
+    <section class="slide active">
+        <div class="max-w-5xl text-center">
+            <div class="anim d1 inline-flex items-center justify-center w-24 h-24 bg-blue-100 text-blue-600 rounded-full mb-8 shadow-inner">
+                <i data-lucide="mouse-pointer-click" width="48" height="48"></i>
+            </div>
+            <br>
+            <div class="anim d2 badge bg-blue-50 text-blue-600 mb-6 border border-blue-100">
+                <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                Masterclass Ultime • Google & Meta Ads
+            </div>
+            <h1 class="anim d3 text-6xl md:text-7xl font-black tracking-tight leading-none mb-6 text-slate-900">
+                Performance <span class="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-cyan-500">Marketing</span>
+            </h1>
+            <p class="anim d4 text-xl md:text-2xl text-slate-600 font-medium max-w-3xl mx-auto leading-relaxed mt-6">
+                Le guide définitif pour structurer, optimiser et scaler vos campagnes <strong>Meta Ads & Google Ads</strong> sans brûler votre budget.
+            </p>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full">
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-10 items-center">
+                <div class="anim d1">
+                    <h2 class="text-5xl font-black text-slate-900 mb-4">La Taxe <br>d'Incompétence.</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">Les algorithmes sont devenus trop intelligents. Si vous essayez de les micro-manager comme en 2018, ils vous pénalisent. 80% des annonceurs brûlent de l'argent sur de mauvais paramétrages.</p>
+                </div>
+                <div class="anim d2 glass-strong p-10 flex gap-6">
+                    <div class="flex-1 text-center bg-red-50 p-6 rounded-2xl">
+                        <i data-lucide="flame" class="mx-auto text-red-500 mb-2" width="40"></i>
+                        <p class="text-xs font-bold text-red-800 uppercase">Brûler du Cash</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Ciblage manuel, mauvaises exclusions.</p>
+                    </div>
+                    <div class="flex-1 text-center bg-blue-50 p-6 rounded-2xl shadow-md transform scale-110">
+                        <i data-lucide="trending-up" class="mx-auto text-blue-600 mb-2" width="40"></i>
+                        <p class="text-xs font-bold text-blue-800 uppercase">Investissement</p>
+                        <p class="text-[10px] text-slate-500 mt-2">Machine Learning & Signaux de conversion.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-slate-900 text-white mb-4">Fondamentaux</div>
+            <h2 class="anim d2 text-4xl font-bold mb-10">Push vs Pull Marketing</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 anim d3">
+                <div class="glass p-10 text-left border-t-4 border-magenta">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" class="h-6 mb-6 opacity-80">
+                    <h3 class="font-black text-2xl mb-2 text-slate-800">Le Push (Meta Ads)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Créer le besoin. Vous interrompez la personne pendant qu'elle scrolle. <strong>Le visuel fait 90% du travail.</strong> L'utilisateur n'a rien demandé.</p>
+                    <div class="text-xs font-bold text-magenta bg-fuchsia-50 p-2 rounded">Idéal pour : Achat d'impulsion, B2C, Innovations.</div>
+                </div>
+                <div class="glass-strong p-10 text-left border-t-4 border-blue-500 shadow-xl">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" class="h-6 mb-6 opacity-80">
+                    <h3 class="font-black text-2xl mb-2 text-slate-800">Le Pull (Google Search)</h3>
+                    <p class="text-sm text-slate-600 mb-4">Capturer l'intention. L'utilisateur cherche activement une solution à son problème. <strong>Le mot-clé fait 90% du travail.</strong></p>
+                    <div class="text-xs font-bold text-blue-600 bg-blue-50 p-2 rounded">Idéal pour : Services B2B, Urgences, Achats réfléchis.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">L'Ère de l'Algorithme (Liquidity)</h2>
+            <div class="anim d2 glass-strong p-10 flex flex-col md:flex-row gap-8 items-center bg-slate-900 text-white">
+                <div class="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center shrink-0 shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                    <i data-lucide="brain-circuit" width="48" height="48"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <h3 class="text-2xl font-bold mb-2 text-blue-300">Donnez de la donnée, pas des règles</h3>
+                    <p class="text-slate-300 leading-relaxed mb-4">
+                        Avant, on créait 50 audiences (18-25 ans, aime le tennis, habite à Paris).<br>
+                        Aujourd'hui, l'algorithme est plus intelligent que vous. On lui donne une audience large (Broad) et on le laisse trouver les acheteurs basés sur les conversions (CPA).
+                    </p>
+                    <div class="bg-slate-800 p-3 rounded text-sm font-bold text-magenta border border-slate-700">Le Ciblage est mort. Le Créatif EST le ciblage.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">L'Écosystème du Funnel</h2>
+            <div class="anim d2 flex flex-col items-center gap-2">
+                <div class="glass w-full max-w-2xl p-6 text-center border-t-8 border-blue-400">
+                    <h3 class="font-black text-slate-800">TOFU (Top of Funnel)</h3>
+                    <p class="text-xs text-slate-500">Trafic Froid. Objectif : Éduquer et capter l'attention. (Meta Broad, YouTube)</p>
+                </div>
+                <i data-lucide="arrow-down" class="text-slate-300"></i>
+                <div class="glass w-full max-w-xl p-6 text-center border-t-8 border-amber-400 shadow-md">
+                    <h3 class="font-black text-slate-800">MOFU (Middle of Funnel)</h3>
+                    <p class="text-xs text-slate-500">Trafic Tiède. Objectif : Considération. (Google Search Non-Marque, Retargeting Visiteurs)</p>
+                </div>
+                <i data-lucide="arrow-down" class="text-slate-300"></i>
+                <div class="glass-strong w-full max-w-md p-6 text-center border-t-8 border-emerald-500 shadow-xl">
+                    <h3 class="font-black text-slate-800">BOFU (Bottom of Funnel)</h3>
+                    <p class="text-xs text-slate-500">Trafic Chaud. Objectif : Conversion. (Google Search Marque, Retargeting Paniers abandonnés)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">Les 4 KPIs du Media Buyer</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 anim d2">
+                <div class="glass p-6 text-center">
+                    <div class="text-3xl font-black text-slate-800 mb-2">CTR</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase">Click-Through Rate</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Votre pub attire-t-elle l'attention ? (> 1%)</p>
+                </div>
+                <div class="glass p-6 text-center">
+                    <div class="text-3xl font-black text-slate-800 mb-2">CPC</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase">Cost Per Click</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Combien coûte votre trafic ?</p>
+                </div>
+                <div class="glass-strong p-6 text-center shadow-md border-b-4 border-blue-500">
+                    <div class="text-3xl font-black text-blue-600 mb-2">CPA</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase">Cost Per Acquisition</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Le coût d'un lead/client. <strong>Le KPI roi.</strong></p>
+                </div>
+                <div class="glass-strong p-6 text-center shadow-lg border-b-4 border-emerald-500">
+                    <div class="text-3xl font-black text-emerald-600 mb-2">ROAS</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase">Return on Ad Spend</div>
+                    <p class="text-[10px] text-slate-500 mt-2">Pour 1€ investi, combien de CA généré ? (> 3x)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-red-50 text-red-600 mb-6">Tracking (Data Foundation)</div>
+            <h2 class="anim d2 text-5xl font-black mb-8 text-slate-900">Le Pixel est (presque) Mort.</h2>
+            <div class="anim d3 glass p-10 border-t-8 border-red-500 shadow-xl max-w-2xl mx-auto text-left">
+                <p class="text-lg text-slate-700 font-medium leading-relaxed mb-4">
+                    iOS 14, AdBlockers, Safari ITP, RGPD... Le Pixel Facebook classique (côté navigateur) perd aujourd'hui entre <strong>30% et 50% de vos ventes</strong>. L'algorithme devient aveugle et vos CPA explosent.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">La Solution : Conversions API (CAPI)</h2>
+            <p class="anim d2 text-slate-600 mb-8">Envoyez la data directement depuis votre Serveur vers le serveur de Meta/Google.</p>
+            
+            <div class="anim d3 glass-strong p-8 max-w-4xl mx-auto flex items-center justify-between shadow-lg">
+                <div class="text-center w-1/3">
+                    <i data-lucide="monitor" class="mx-auto text-slate-400 mb-2" width="40"></i>
+                    <p class="text-sm font-bold">Navigateur (Pixel)</p>
+                    <p class="text-[10px] text-red-500">Bloqué par AdBlock</p>
+                </div>
+                <div class="w-1/3 flex flex-col items-center relative">
+                    <div class="w-full h-1 bg-slate-200 absolute top-1/2 -z-10"></div>
+                    <div class="bg-red-500 text-white text-[10px] px-2 py-1 rounded font-bold">BLOQUÉ</div>
+                </div>
+                <div class="text-center w-1/3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" class="h-8 mx-auto mb-2 opacity-50">
+                    <p class="text-sm font-bold">Serveur Meta</p>
+                </div>
+            </div>
+            
+            <div class="anim d4 glass-strong p-8 max-w-4xl mx-auto mt-4 flex items-center justify-between shadow-xl border-b-4 border-emerald-500">
+                <div class="text-center w-1/3">
+                    <i data-lucide="server" class="mx-auto text-slate-800 mb-2" width="40"></i>
+                    <p class="text-sm font-bold">Votre Serveur (Backend)</p>
+                    <p class="text-[10px] text-emerald-600">Paiement Stripe validé</p>
+                </div>
+                <div class="w-1/3 flex flex-col items-center relative">
+                    <div class="w-full h-1 bg-emerald-500 absolute top-1/2 -z-10"></div>
+                    <i data-lucide="arrow-right" class="text-emerald-500 bg-white rounded-full"></i>
+                </div>
+                <div class="text-center w-1/3">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg" class="h-8 mx-auto mb-2">
+                    <p class="text-sm font-bold">Serveur Meta</p>
+                    <p class="text-[10px] text-emerald-600">100% Tracké</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">GTM Server-Side (SS)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-8 items-center">
+                <div class="anim d2 glass p-8 text-center bg-blue-50/30">
+                    <img src="https://www.svgrepo.com/show/353827/google-tag-manager.svg" class="h-16 mx-auto mb-4" alt="GTM">
+                    <h3 class="font-bold text-slate-800">Le Hub Central</h3>
+                </div>
+                <div class="anim d3 glass-strong p-8 shadow-xl">
+                    <p class="text-slate-700 text-sm leading-relaxed mb-4">
+                        Au lieu d'envoyer la data à Facebook, Google Analytics, Pinterest et TikTok séparément (ce qui ralentit votre site), vous envoyez la data <strong>une seule fois</strong> à votre conteneur GTM Server-Side (hébergé sur un sous-domaine type <code>tracking.votre-site.com</code>).
+                    </p>
+                    <p class="text-xs font-bold text-blue-600 bg-blue-50 p-2 rounded">
+                        GTM se charge de redistribuer la donnée aux régies publicitaires. C'est le standard de 2026.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">B2B : Les Conversions Hors Ligne</h2>
+            <div class="anim d2 glass-strong p-10 flex flex-col md:flex-row items-center gap-10 shadow-xl border-l-4 border-amber-500">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">Ne nourrissez pas Google avec du "Lead"</h3>
+                    <p class="text-slate-600 leading-relaxed mb-4">
+                        Si vous optimisez sur les "Formulaires remplis", Google va vous trouver des centaines de curieux non-qualifiés.
+                        Il faut renvoyer le <strong>statut du CRM (Deal Closed Won)</strong> à Google Ads via GCLID (Google Click ID) 3 mois après le clic.
+                    </p>
+                </div>
+                <div class="flex-1 w-full text-sm font-bold text-slate-600">
+                    <div class="bg-white p-3 border border-slate-200 rounded mb-2 flex justify-between"><span>Lead (MQL)</span> <span class="text-red-500 text-xs">Signal Faible</span></div>
+                    <div class="bg-white p-3 border border-slate-200 rounded mb-2 flex justify-between"><span>Rdv Pris (SQL)</span> <span class="text-amber-500 text-xs">Signal Moyen</span></div>
+                    <div class="bg-emerald-50 p-3 border border-emerald-200 rounded flex justify-between"><span>Facture Payée</span> <span class="text-emerald-600 text-xs">Signal Fort (Optimiser ici)</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">Les Modèles d'Attribution</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="anim d2 glass p-8 opacity-80">
+                    <h3 class="text-xl font-bold mb-2">Last Click (Le Passé)</h3>
+                    <p class="text-sm text-slate-500 mb-4">Attribue 100% de la vente au dernier point de contact (souvent une recherche marque sur Google). Les pubs Facebook en haut de funnel ne reçoivent aucun crédit et semblent non rentables.</p>
+                </div>
+                <div class="anim d3 glass-strong p-8 shadow-lg border-t-4 border-blue-500 bg-blue-50/20">
+                    <h3 class="text-xl font-bold mb-2">Data-Driven (Le Présent)</h3>
+                    <p class="text-sm text-slate-700 mb-4">L'algorithme analyse le parcours complet et distribue le crédit (ex: 30% Meta, 20% Email, 50% Google). C'est le modèle par défaut indispensable aujourd'hui.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-8">La Rigueur des UTMs</h2>
+            <div class="anim d2 glass-strong p-8 bg-slate-900 text-white font-mono text-sm shadow-xl rounded-xl max-w-3xl mx-auto leading-relaxed">
+                <p class="text-slate-400 mb-4">// Ne lancez aucune pub sans cette structure d'URL stricte :</p>
+                <span class="text-white">votre-site.com/offre</span><br>
+                <span class="text-blue-400">?utm_source=</span><span class="text-yellow-300">facebook</span><br>
+                <span class="text-blue-400">&utm_medium=</span><span class="text-yellow-300">paid_social</span><br>
+                <span class="text-blue-400">&utm_campaign=</span><span class="text-yellow-300">{{campaign.name}}</span><br>
+                <span class="text-blue-400">&utm_content=</span><span class="text-yellow-300">{{ad.name}}</span>
+                
+                <p class="text-xs text-slate-500 mt-6">// Les accolades {{...}} permettent à Meta d'injecter dynamiquement le nom sans le taper à la main.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <div class="anim d1 badge bg-blue-50 text-blue-600 mb-4">Partie 2 : Meta Ads</div>
+            <h2 class="anim d2 text-4xl font-bold mb-8">L'Arborescence Meta Ads</h2>
+            <div class="anim d3 flex flex-col items-center">
+                <div class="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold shadow-md w-64">Campaign (Objectif & Budget)</div>
+                <div class="tree-line"></div><div class="tree-branch"></div>
+                <div class="flex justify-between w-full max-w-md">
+                    <div class="flex flex-col items-center w-1/2">
+                        <div class="tree-line"></div>
+                        <div class="bg-slate-800 text-white px-4 py-2 rounded font-bold w-48 text-sm">Ad Set (Audience Broad)</div>
+                        <div class="tree-line"></div>
+                        <div class="flex flex-col gap-2 w-full px-4">
+                            <div class="bg-white border border-slate-200 text-slate-700 py-1 rounded text-xs shadow-sm">Ad 1 (Video UGC)</div>
+                            <div class="bg-white border border-slate-200 text-slate-700 py-1 rounded text-xs shadow-sm">Ad 2 (Static Image)</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center w-1/2">
+                        <div class="tree-line"></div>
+                        <div class="bg-slate-800 text-white px-4 py-2 rounded font-bold w-48 text-sm">Ad Set (Retargeting)</div>
+                        <div class="tree-line"></div>
+                        <div class="flex flex-col gap-2 w-full px-4">
+                            <div class="bg-white border border-slate-200 text-slate-700 py-1 rounded text-xs shadow-sm">Ad 3 (Testimonial)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">CBO vs ABO (Gestion du Budget)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="anim d2 glass p-8 opacity-80">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">ABO (Ad Set Budget)</h3>
+                    <p class="text-sm text-slate-500 mb-4">Vous fixez un budget fixe par ensemble de pubs. Utilisé uniquement pour les phases de TEST strictes pour forcer Facebook à dépenser sur une nouvelle créa.</p>
+                </div>
+                <div class="anim d3 glass-strong p-8 shadow-lg border-t-4 border-blue-500">
+                    <h3 class="text-xl font-bold text-blue-600 mb-2">Advantage+ CBO (Campaign Budget)</h3>
+                    <p class="text-sm text-slate-700 mb-4">Le budget est au niveau de la campagne. L'algorithme distribue l'argent en temps réel vers la pub qui convertit le mieux. <strong>C'est le standard pour Scaler.</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Le Ciblage en 2026 : BROAD</h2>
+            <div class="anim d2 glass-strong p-10 flex flex-col md:flex-row items-center gap-10 shadow-xl border-l-4 border-blue-500 bg-blue-50/20">
+                <div class="w-24 h-24 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="users" width="40" height="40"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Faites confiance à la machine</h3>
+                    <p class="text-slate-700 leading-relaxed">
+                        Ne ciblez plus "Intérêts: Yoga, Tennis". Laissez tout vide (Âge: 18-65+, Genre: Tous, Lieu: France).<br><br>
+                        Pourquoi ? Parce que Meta analyse le contenu de votre image/vidéo et sait exactement à qui la montrer. Un ciblage restreint augmente les CPM (Coûts) artificiellement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-magenta text-white mb-4">La Règle d'Or</div>
+            <h2 class="anim d2 text-5xl font-black mb-8 text-slate-900">Le Créatif <br><span class="text-magenta">EST</span> le ciblage.</h2>
+            <p class="anim d3 text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+                Si vous voulez cibler des avocats, n'utilisez pas les options de ciblage Facebook. Écrivez simplement en gros sur votre image : <strong>"Outil de facturation exclusif pour les Avocats."</strong> L'algorithme fera le reste.
+            </p>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">Les Metrics Créatifs Vitaux</h2>
+            <div class="anim d2 glass-strong p-8 max-w-3xl mx-auto shadow-xl">
+                <div class="mb-6 border-b border-slate-100 pb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-black text-lg text-slate-800">Hook Rate (Taux d'accroche)</h3>
+                        <span class="text-magenta font-black text-xl">> 30%</span>
+                    </div>
+                    <p class="text-sm text-slate-500 text-left">Pourcentage de personnes qui ont regardé les 3 premières secondes de la vidéo. Si < 20%, changez les 3 premières secondes, pas le reste.</p>
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-black text-lg text-slate-800">Hold Rate (Taux de rétention)</h3>
+                        <span class="text-blue-600 font-black text-xl">> 15%</span>
+                    </div>
+                    <p class="text-sm text-slate-500 text-left">Pourcentage de personnes (ayant passé le hook) qui regardent la vidéo en entier. Si faible : le contenu est ennuyeux ou trop long.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">Les 3 Formats qui convertissent</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 anim d2">
+                <div class="glass p-8 border-t-4 border-magenta">
+                    <h3 class="font-black text-lg mb-2 text-slate-800">UGC (User Generated Content)</h3>
+                    <p class="text-xs text-slate-600 mb-4">Un vrai client (ou acteur) face caméra avec son téléphone. Semble natif à TikTok/Reels. Ne ressemble pas à une pub.</p>
+                </div>
+                <div class="glass-strong p-8 shadow-lg border-t-4 border-blue-500 transform scale-105">
+                    <h3 class="font-black text-lg mb-2 text-slate-900">Le Static "Us vs Them"</h3>
+                    <p class="text-xs text-slate-600 mb-4">Une image statique très simple séparée en deux. Rouge à gauche (L'ancienne méthode). Vert à droite (Votre solution).</p>
+                </div>
+                <div class="glass p-8 border-t-4 border-amber-500">
+                    <h3 class="font-black text-lg mb-2 text-slate-800">Founder's Story</h3>
+                    <p class="text-xs text-slate-600 mb-4">Le fondateur explique sincèrement pourquoi il a créé le produit. Crée une connexion émotionnelle forte en B2B.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full flex justify-center items-center gap-12">
+            <div class="anim d1 w-1/2 text-right">
+                <h2 class="text-4xl font-bold mb-6">Anatomie d'une Ad Parfaite</h2>
+                <ul class="space-y-6 text-sm text-slate-600">
+                    <li><strong class="text-slate-900 block">1. Primary Text (Copie)</strong><br>Court, pose le problème, saute des lignes.</li>
+                    <li><strong class="text-slate-900 block">2. Le Créatif (Format 4:5 ou 9:16)</strong><br>Texte natif incrusté pour ceux qui ont le son coupé.</li>
+                    <li><strong class="text-slate-900 block">3. Headline (Titre)</strong><br>Bénéfice clair ou offre irrésistible.</li>
+                    <li><strong class="text-slate-900 block">4. CTA (Bouton)</strong><br>Learn More ou Sign Up.</li>
+                </ul>
+            </div>
+            
+            <div class="anim d2 mockup-phone flex flex-col bg-slate-50 shrink-0">
+                <div class="flex items-center gap-2 p-3 bg-white">
+                    <div class="w-8 h-8 bg-blue-600 rounded-full"></div>
+                    <div class="text-xs font-bold">Votre Marque <br><span class="font-normal text-slate-400">Sponsored</span></div>
+                </div>
+                <div class="px-3 pb-2 text-[10px] text-slate-700 bg-white">Fatigué de perdre du temps sur Excel ? Découvrez l'outil IA qui fait le travail à votre place. 👇</div>
+                <div class="flex-1 bg-slate-200 relative">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=300&q=80" class="w-full h-full object-cover">
+                    <div class="absolute bottom-4 left-4 bg-yellow-400 text-black font-black text-xs px-2 py-1 transform -rotate-2">STOP EXCEL</div>
+                </div>
+                <div class="p-3 bg-white flex justify-between items-center border-t border-slate-100">
+                    <div class="text-xs font-bold truncate">Automatisez votre Data.</div>
+                    <div class="bg-slate-100 text-[10px] px-2 py-1 font-bold rounded">Learn More</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">DCO (Dynamic Creative Optimization)</h2>
+            <div class="anim d2 glass-strong p-10 shadow-xl border-l-4 border-magenta">
+                <h3 class="text-2xl font-bold text-slate-800 mb-4">Laissez Meta faire les combinaisons</h3>
+                <p class="text-slate-600 leading-relaxed mb-6">
+                    Ne créez pas 15 annonces distinctes. Uploadez dans la même annonce :<br>
+                    <strong>3 Vidéos + 3 Textes (Copy) + 2 Titres = 18 Combinaisons possibles.</strong>
+                </p>
+                <div class="bg-blue-50 text-blue-800 p-3 rounded text-sm font-bold">L'algorithme testera toutes les combinaisons et poussera le budget sur celle qui génère le CPA le plus bas.</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-slate-900 text-white mb-4">Méthodologie</div>
+            <h2 class="anim d2 text-4xl font-bold mb-8 text-slate-900">Le Framework de Test 3-2-2</h2>
+            <p class="anim d3 text-slate-600 mb-8 max-w-2xl mx-auto">La structure parfaite pour tester de nouvelles pubs chaque semaine sans casser l'apprentissage de la campagne mère.</p>
+            
+            <div class="grid grid-cols-3 gap-4 anim d4">
+                <div class="glass p-6"><div class="text-4xl font-black text-magenta mb-2">3</div><div class="text-sm font-bold">Créatifs (Vidéos)</div></div>
+                <div class="glass p-6"><div class="text-4xl font-black text-blue-500 mb-2">2</div><div class="text-sm font-bold">Primary Texts (Copy)</div></div>
+                <div class="glass p-6"><div class="text-4xl font-black text-slate-800 mb-2">2</div><div class="text-sm font-bold">Headlines (Titres)</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">La Loi du Scaling (20% Rule)</h2>
+            <div class="anim d2 glass-strong p-8 max-w-3xl mx-auto shadow-2xl relative overflow-hidden bg-slate-900 text-white">
+                <p class="text-slate-300 font-medium mb-6">Si une campagne est rentable, ne doublez jamais son budget d'un coup. Cela relance la <strong>Learning Phase</strong> et fait exploser le CPA.</p>
+                
+                <div class="flex items-center justify-between bg-slate-800 p-4 rounded-xl mb-4">
+                    <div class="text-left">
+                        <div class="text-xs text-slate-400">Budget Quotidien</div>
+                        <div class="text-xl font-bold font-mono" id="sim-budget">100 €</div>
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs text-slate-400">CPA Actuel</div>
+                        <div class="text-xl font-bold font-mono text-emerald-400" id="sim-cpa">12.50 €</div>
+                    </div>
+                    <button class="bg-blue-600 px-4 py-2 rounded text-xs font-bold hover:bg-blue-500 transition" onclick="playScaleSim()">Scale +20%</button>
+                    <button class="bg-red-600 px-4 py-2 rounded text-xs font-bold hover:bg-red-500 transition" onclick="playScaleRuinSim()">Scale +100%</button>
+                </div>
+                <div id="sim-status" class="text-xs text-slate-400 font-mono h-4">Statut : Stable (Apprentissage terminé)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-amber-50 text-amber-700 mb-6">Partie 3 : Google Ads</div>
+            <div class="anim d2 inline-block bg-white border border-slate-200 shadow-sm p-4 rounded-full mb-6 max-w-xl w-full flex items-center gap-3">
+                <i data-lucide="search" class="text-slate-400"></i>
+                <div class="text-slate-600 font-mono text-sm text-left flex-1 border-r border-slate-200">logiciel de facturation comptable</div>
+                <i data-lucide="mic" class="text-blue-500 px-2"></i>
+            </div>
+            <h2 class="anim d3 text-5xl font-black mb-6 text-slate-900">Le Piège de l'Intention Google</h2>
+            <p class="anim d4 text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+                Sur Google, vous ne payez pas pour une audience. Vous payez pour un <strong>Mot-Clé</strong>. Si votre mot-clé est trop générique, vous payez pour les clics de curieux et d'étudiants.
+            </p>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">La Structure Hagakure (Consolidation)</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="anim d2 glass p-8 opacity-70">
+                    <h3 class="text-xl font-bold mb-2 text-slate-800">Ancienne école (SKAGs)</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        1 Mot-clé par Groupe d'annonces. Donnait 500 groupes à gérer manuellement. L'algorithme n'avait pas assez de data par groupe pour optimiser.
+                    </p>
+                </div>
+                <div class="anim d3 glass-strong p-8 border-l-4 border-amber-500 shadow-xl">
+                    <h3 class="text-xl font-bold mb-2 text-amber-600">Nouvelle école (Thématique)</h3>
+                    <p class="text-slate-700 text-sm leading-relaxed">
+                        On regroupe les mots-clés par <strong>intention sémantique</strong> (ex: "CRM Immobilier" "Logiciel Agence Immo"). On donne un maximum de volume à l'algorithme d'enchères intelligentes (Smart Bidding).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">Les Types de Correspondance</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 anim d2">
+                <div class="glass p-6 text-left">
+                    <div class="text-xl font-bold text-slate-800 mb-2">[Exact Match]</div>
+                    <p class="text-xs text-slate-500 mb-4">Contrôle strict. Déclenche uniquement si l'intention est exacte.</p>
+                    <div class="bg-slate-100 p-2 rounded text-xs font-mono text-slate-600">[logiciel paie]</div>
+                </div>
+                <div class="glass-strong p-6 text-left shadow-lg border-t-4 border-blue-500">
+                    <div class="text-xl font-bold text-blue-600 mb-2">"Phrase Match"</div>
+                    <p class="text-xs text-slate-600 mb-4">Le bon compromis volume/contrôle. Accepte des mots avant et après.</p>
+                    <div class="bg-blue-50 p-2 rounded text-xs font-mono text-blue-800">"logiciel paie" ➔ avis logiciel paie pas cher</div>
+                </div>
+                <div class="glass p-6 text-left">
+                    <div class="text-xl font-bold text-red-500 mb-2">Broad Match</div>
+                    <p class="text-xs text-slate-500 mb-4">Danger ! Google a carte blanche. À n'utiliser qu'avec un très fort historique de conversion (tCPA).</p>
+                    <div class="bg-red-50 p-2 rounded text-xs font-mono text-red-800">logiciel paie ➔ comment faire une fiche de paie</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-red-50 text-red-600 mb-4">Le Bouclier Financier</div>
+            <h2 class="anim d2 text-4xl font-bold mb-8 text-slate-900">Les Mots-clés Négatifs</h2>
+            <div class="anim d3 glass-strong p-10 border-t-8 border-red-500 shadow-xl max-w-2xl mx-auto text-left">
+                <p class="text-lg text-slate-700 font-medium leading-relaxed mb-6">
+                    Le travail quotidien sur Google Ads n'est pas d'ajouter des mots-clés, c'est d'en exclure. Sans une liste stricte, Google dépensera votre budget sur des requêtes sans valeur.
+                </p>
+                <div class="flex flex-wrap gap-2 font-mono text-xs font-bold">
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">gratuit</span>
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">open source</span>
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">stage</span>
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">formation</span>
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">définition</span>
+                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded">login</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Smart Bidding (Enchères IA)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="anim d2 glass p-8">
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">Maximiser les clics (À fuir)</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Google vous trouvera les clics les moins chers possibles. Généralement des bots ou du trafic mobile non qualifié accidentel.
+                    </p>
+                </div>
+                <div class="anim d3 glass-strong p-8 bg-emerald-50/50 shadow-md border-l-4 border-emerald-500">
+                    <h3 class="text-xl font-bold mb-2 text-emerald-700">tCPA (Target CPA)</h3>
+                    <p class="text-slate-700 text-sm leading-relaxed mb-4">
+                        Vous dites à l'algorithme : "Je suis prêt à payer maximum 50€ pour un Lead". Google adaptera l'enchère (CPC) en fonction de la probabilité de conversion de l'utilisateur (Navigateur, Heure, Historique).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">Prendre toute la place (SERP)</h2>
+            <p class="anim d2 text-slate-600 mb-8">Utilisez <strong>toutes les extensions (Assets)</strong> pour occuper 100% de l'écran mobile d'un prospect.</p>
+            
+            <div class="anim d3 mockup-search p-6 max-w-2xl mx-auto text-left flex flex-col gap-2">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold text-slate-800">Sponsored</span>
+                    <span class="text-xs text-slate-500">https://www.datak-crm.com/</span>
+                </div>
+                <div class="text-blue-800 text-xl font-normal hover:underline cursor-pointer">Le Logiciel CRM des Artisans | +20% de Marge | Essai 14j</div>
+                <div class="text-sm text-slate-600 leading-relaxed mb-2">Centralisez vos devis, factures et relances sur une seule app mobile. Conçu spécifiquement pour le BTP. Service client basé en France.</div>
+                
+                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-blue-800 text-sm font-medium mt-2 pt-2 border-t border-slate-100">
+                    <div class="hover:underline cursor-pointer">Voir les Tarifs</div>
+                    <div class="hover:underline cursor-pointer">Fonctionnalité Devis Auto</div>
+                    <div class="hover:underline cursor-pointer">Témoignages Clients</div>
+                    <div class="hover:underline cursor-pointer">Prendre RDV Démo</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Le Score de Qualité (Payer moins)</h2>
+            <div class="anim d2 glass-strong p-10 flex flex-col md:flex-row items-center gap-10 shadow-xl border-l-4 border-amber-500">
+                <div class="w-32 h-32 text-amber-500 flex flex-col items-center justify-center shrink-0 border-4 border-amber-200 rounded-full font-black text-4xl">
+                    9/10
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">La Formule Magique</h3>
+                    <p class="text-slate-600 leading-relaxed mb-4">
+                        Ad Rank = Enchère Max (CPC) × <strong>Quality Score</strong>.<br>
+                        Si votre Quality Score est de 10/10, vous pouvez être 1er sur Google en payant 2 fois MOINS CHER que votre concurrent.
+                    </p>
+                    <ul class="text-sm font-bold text-slate-700 flex gap-4">
+                        <li>1. CTR Attendu</li>
+                        <li>2. Pertinence de l'annonce</li>
+                        <li>3. Qualité de la Landing Page</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-slate-900 text-white mb-6">Le Monstre de Google</div>
+            <h2 class="anim d2 text-5xl font-black mb-6 text-slate-900">Performance Max (PMax)</h2>
+            <div class="anim d3 glass-strong p-10 shadow-2xl relative overflow-hidden bg-gradient-to-r from-blue-50 to-red-50">
+                <p class="text-lg text-slate-800 font-medium leading-relaxed mb-6 relative z-10">
+                    PMax est une campagne "Boîte Noire". Vous donnez vos budgets, vos images, vos textes et vos vidéos. Google diffuse vos pubs simultanément sur <strong>Search, YouTube, Display, Discover et Gmail</strong>.
+                </p>
+                <div class="bg-white text-slate-800 font-bold p-3 rounded shadow-sm text-sm inline-block mx-auto border border-slate-200">
+                    Obligatoire en E-Commerce (Shopping). Puissant en B2B si bien nourri en data.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Nourrir la Bête (Asset Groups)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="anim d2 glass p-8">
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">L'erreur classique</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Mettre des images carrées, aucun logo, et pas de vidéo. Google générera une vidéo automatique horrible avec vos images sous fond de musique libre de droit.
+                    </p>
+                </div>
+                <div class="anim d3 glass-strong p-8 shadow-lg border-t-4 border-blue-500 bg-blue-50/20">
+                    <h3 class="text-xl font-bold mb-2 text-blue-700">Le Setup Excellent</h3>
+                    <ul class="space-y-2 text-sm text-slate-700 font-medium">
+                        <li>• 15 Images (Format Carré, Paysage, Portrait)</li>
+                        <li>• 5 Logos HD</li>
+                        <li>• 5 Vidéos YouTube (Shorts + Longues)</li>
+                        <li>• Titres & Descriptions (Remplir les 15 cases)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-8">YouTube Ads (Video Action)</h2>
+            <div class="anim d2 glass-strong p-10 flex flex-col md:flex-row items-center gap-10 shadow-xl border-l-4 border-red-500">
+                <div class="w-32 h-32 bg-red-100 text-red-600 rounded-full flex items-center justify-center shrink-0">
+                    <i data-lucide="youtube" width="48" height="48"></i>
+                </div>
+                <div class="flex-1 text-left">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Les 5 premières secondes</h3>
+                    <p class="text-slate-600 leading-relaxed mb-4">
+                        Le format TrueView "Skippable in-stream" permet à l'utilisateur de passer la pub au bout de 5 secondes. <br>
+                        <strong>Si vous passez votre logo et dites "Bonjour", vous avez perdu.</strong> Posez une question perturbante dès la seconde 1.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-slate-900 text-white mb-6">Omnicanal</div>
+            <h2 class="anim d2 text-5xl font-black mb-8 text-slate-900">Le "Halo Effect"</h2>
+            <div class="anim d3 glass p-10 border-t-8 border-slate-800 shadow-xl max-w-2xl mx-auto text-left">
+                <p class="text-lg text-slate-700 font-medium leading-relaxed mb-6">
+                    Méta et Google ne s'opposent pas, ils se nourrissent. Une pub Facebook génère de l'intérêt. L'utilisateur ne clique pas, mais cherche votre marque sur Google 2 heures plus tard.
+                </p>
+                <div class="bg-slate-100 p-4 rounded text-sm font-bold border border-slate-200">
+                    Si vous coupez Meta car "le ROAS est bas", vos recherches organiques sur Google vont s'effondrer. C'est l'erreur du débutant.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-6xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">La Séquence de Retargeting (BOFU)</h2>
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 anim d2">
+                <div class="glass p-6 text-center w-full md:w-1/3">
+                    <h3 class="font-bold text-sm mb-1 text-slate-800">Jour 0-3 (Rappel)</h3>
+                    <p class="text-xs text-slate-500 mb-2">"Vous avez oublié ça dans votre panier."</p>
+                    <div class="bg-slate-100 text-[10px] font-mono p-1 rounded">Format : Catalogue Produit</div>
+                </div>
+                <i data-lucide="arrow-right" class="text-slate-300 hidden md:block"></i>
+                <div class="glass-strong p-6 text-center w-full md:w-1/3 shadow-lg border-b-4 border-amber-500">
+                    <h3 class="font-bold text-sm mb-1 text-amber-700">Jour 4-7 (Preuve Sociale)</h3>
+                    <p class="text-xs text-slate-600 mb-2">"Découvrez pourquoi 10 000 clients nous aiment."</p>
+                    <div class="bg-amber-50 text-amber-800 text-[10px] font-mono p-1 rounded">Format : Témoignages / UGC</div>
+                </div>
+                <i data-lucide="arrow-right" class="text-slate-300 hidden md:block"></i>
+                <div class="glass p-6 text-center w-full md:w-1/3">
+                    <h3 class="font-bold text-sm mb-1 text-red-600">Jour 8-14 (Urgence/Promo)</h3>
+                    <p class="text-xs text-slate-500 mb-2">"10% de réduction. Expire ce soir."</p>
+                    <div class="bg-red-50 text-red-800 text-[10px] font-mono p-1 rounded">Format : Image Statique Flash</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-4xl w-full text-center">
+            <h2 class="anim d1 text-4xl font-bold mb-10">La Règle du 70/20/10 (Budget)</h2>
+            <div class="anim d2 flex h-32 rounded-xl overflow-hidden shadow-xl w-full max-w-2xl mx-auto">
+                <div class="w-[70%] bg-blue-500 flex flex-col items-center justify-center text-white p-4">
+                    <span class="font-black text-2xl">70%</span>
+                    <span class="text-xs font-bold uppercase tracking-widest text-blue-100 text-center leading-tight mt-1">Acquisition (Broad)</span>
+                </div>
+                <div class="w-[20%] bg-amber-500 flex flex-col items-center justify-center text-white p-4">
+                    <span class="font-black text-xl">20%</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-amber-100 text-center mt-1">Retargeting</span>
+                </div>
+                <div class="w-[10%] bg-magenta flex flex-col items-center justify-center text-white p-2">
+                    <span class="font-black">10%</span>
+                    <span class="text-[8px] font-bold uppercase mt-1">TESTS</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">La Tech Stack Analytics (L'Anti-Bug)</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="anim d2 glass p-8">
+                    <h3 class="text-xl font-bold mb-4 text-slate-800">Le Tracker Tiers</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        Ne croyez jamais les chiffres affichés par Facebook Ads (qui s'attribue trop de ventes) ni par Google Analytics (qui favorise Google Ads). Utilisez une source de vérité indépendante.
+                    </p>
+                </div>
+                <div class="anim d3 glass-strong p-8 bg-slate-900 text-white shadow-xl border-l-4 border-magenta">
+                    <h3 class="text-lg font-bold text-magenta mb-4">Outils Recommandés :</h3>
+                    <ul class="space-y-3 text-sm font-medium text-slate-300">
+                        <li>🐳 TripleWhale (Standard E-com)</li>
+                        <li>🧭 Northbeam (Entreprise)</li>
+                        <li>📊 Hyros / Madgicx (Automatisation)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-5xl w-full text-center">
+            <div class="anim d1 badge bg-amber-50 text-amber-700 mb-4">Le cycle de vie</div>
+            <h2 class="anim d2 text-4xl font-bold mb-8 text-slate-900">La Fatigue Créative (Ad Fatigue)</h2>
+            <div class="anim d3 glass-strong p-10 max-w-3xl mx-auto shadow-lg text-left">
+                <p class="text-slate-700 font-medium leading-relaxed mb-6">
+                    Même la meilleure publicité du monde finit par mourir. Si la <strong>fréquence</strong> (nombre de fois qu'un utilisateur voit la pub) dépasse 3, le CPA va monter en flèche.
+                </p>
+                <div class="bg-amber-50 text-amber-800 p-4 rounded-lg font-bold text-sm border border-amber-200">
+                    Règle d'or : L'équipe Créa doit produire 3 nouvelles vidéos par semaine pour nourrir l'algorithme en continu. La machine a toujours faim.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-4xl w-full mx-auto">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Ton Plan d'Action Meta (72h)</h2>
+            <div class="anim d2 glass-strong p-10 relative">
+                <div class="absolute left-10 top-12 bottom-12 w-0.5 bg-slate-200"></div>
+                
+                <div class="relative flex items-center gap-6 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm z-10">1</div>
+                    <div class="font-bold text-slate-800">Installer le Pixel ET l'API de Conversion (CAPI) via Shopify/GTM.</div>
+                </div>
+                <div class="relative flex items-center gap-6 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm z-10">2</div>
+                    <div class="font-bold text-slate-800">Produire 3 créatifs (1 Vidéo Face caméra, 1 Image "Us vs Them").</div>
+                </div>
+                <div class="relative flex items-center gap-6">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm z-10"><i data-lucide="play" width="14"></i></div>
+                    <div class="font-bold text-slate-800">Lancer 1 Campagne Advantage+ (CBO). Ciblage Broad. Ne touchez à rien pendant 7 jours.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-4xl w-full mx-auto">
+            <h2 class="anim d1 text-center text-4xl font-bold mb-10">Ton Plan d'Action Google (72h)</h2>
+            <div class="anim d2 glass-strong p-10 relative">
+                <div class="absolute left-10 top-12 bottom-12 w-0.5 bg-slate-200"></div>
+                
+                <div class="relative flex items-center gap-6 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm z-10">1</div>
+                    <div class="font-bold text-slate-800">Créer une campagne Search "Marque" (Protection) en Exact Match.</div>
+                </div>
+                <div class="relative flex items-center gap-6 mb-6">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm z-10">2</div>
+                    <div class="font-bold text-slate-800">Créer une campagne Search "Générique" (Intention forte) en Phrase Match.</div>
+                </div>
+                <div class="relative flex items-center gap-6">
+                    <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm z-10"><i data-lucide="shield-minus" width="14"></i></div>
+                    <div class="font-bold text-slate-800">Ajouter la liste des 100 mots-clés négatifs universels (gratuit, etc).</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div class="max-w-4xl text-center">
+            <div class="anim d1 p-6 bg-white/60 rounded-3xl mb-6 border-none backdrop-blur inline-block shadow-sm">
+                <img src="https://usine-a-sites.s3.eu-west-1.amazonaws.com/Integration/logo_mail_dcs.png" alt="Logo" class="h-8 opacity-90">
+            </div>
+            <h2 class="anim d2 text-5xl font-black mb-6 text-slate-900">Le Media Buying est <br>devenu un métier créatif.</h2>
+            <p class="anim d3 text-xl text-slate-600 font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
+                L'algorithme s'occupe des maths et de la diffusion. Votre rôle est de comprendre la psychologie humaine pour produire des publicités impossibles à ignorer.
+            </p>
+            <div class="anim d4">
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-500 transition" onclick="goToSlide(0)">
+                    Recommencer
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    (function() {
+        'use strict';
+        lucide.createIcons();
+
+        const slides = document.querySelectorAll('.slide');
+        const counter = document.getElementById('slideCounter');
+        const progress = document.getElementById('progress');
+        let current = 0;
+        const total = slides.length;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === current);
+            });
+            if(counter) counter.innerText = `${String(current + 1).padStart(2, '0')} / ${total}`;
+            if(progress) progress.style.width = `${((current + 1) / total) * 100}%`;
+        }
+
+        window.nextSlide = () => { if (current < total - 1) { current++; updateSlide(); } };
+        window.prevSlide = () => { if (current > 0) { current--; updateSlide(); } };
+        window.goToSlide = (n) => { current = n; updateSlide(); };
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            if(e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        // Touch swipe
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        document.addEventListener('touchend', e => {
+            if(touchStartX - e.changedTouches[0].screenX > 50) nextSlide();
+            if(e.changedTouches[0].screenX - touchStartX > 50) prevSlide();
+        }, {passive: true});
+
+        // --- SCALING SIMULATOR (SLIDE 22) ---
+        window.playScaleSim = () => {
+            const budg = document.getElementById('sim-budget');
+            const cpa = document.getElementById('sim-cpa');
+            const status = document.getElementById('sim-status');
+            
+            budg.innerText = "120 €";
+            cpa.classList.remove('text-emerald-400');
+            cpa.classList.add('text-amber-400');
+            cpa.innerText = "13.80 €";
+            status.innerHTML = "Statut : <span class='text-amber-400'>Learning... Légère hausse du CPA acceptable.</span>";
+            
+            setTimeout(() => {
+                cpa.classList.replace('text-amber-400', 'text-emerald-400');
+                cpa.innerText = "12.60 €";
+                status.innerHTML = "Statut : <span class='text-emerald-400'>Stable. Nouveau palier de scaling atteint.</span>";
+            }, 2500);
+        };
+        
+        window.playScaleRuinSim = () => {
+            const budg = document.getElementById('sim-budget');
+            const cpa = document.getElementById('sim-cpa');
+            const status = document.getElementById('sim-status');
+            
+            budg.innerText = "200 €";
+            cpa.classList.remove('text-emerald-400', 'text-amber-400');
+            cpa.classList.add('text-red-500');
+            cpa.innerText = "45.00 €";
+            status.innerHTML = "Statut : <span class='text-red-500'>CRASH. L'algorithme est perdu. Budget brûlé.</span>";
+        };
+
+        updateSlide();
+    })();
+    </script>
+</body>
+</html>
